@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>【スマホ版】学食 提供・売り切れ状況</title>
+    <style>
+        body { margin: 0; padding: 0; background-color: #f4f4f9; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; color: #333; }
+        .header { background-color: #ff9800; color: #fff; padding: 15px; text-align: center; font-size: 20px; font-weight: bold; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .container { padding: 15px; display: flex; flex-direction: column; gap: 20px; }
+        .section-title { font-size: 18px; font-weight: bold; border-left: 5px solid #ff9800; padding-left: 10px; margin-bottom: 10px; }
+        
+        /* カード（提供状況） */
+        .card-row { display: flex; gap: 10px; }
+        .card { flex: 1; background: #fff; border-radius: 8px; border-top: 5px solid; padding: 10px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .card.orange { border-color: #ea8c12; } .card.green { border-color: #2ca04a; }
+        .card-title { font-weight: bold; margin-bottom: 5px; font-size: 16px;}
+        .card-time { font-size: 24px; font-weight: 900; }
+        .card-wait { font-size: 14px; margin-top: 5px; font-weight: bold; transition: color 0.5s ease;}
+        .status-img { width: 60px; height: auto; margin-top: 5px; }
+        
+        /* 売り切れ情報 */
+        .soldout-box { background: #fff; border-radius: 8px; border-top: 5px solid #ce1b22; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .soldout-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #ccc; padding: 8px 0; font-size: 14px; font-weight: bold; }
+        .badge { background: #ce1b22; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="header">高専品川 学生食堂ナビ</div>
+    <div class="container">
+        
+        <div>
+            <div class="section-title">🕒 メニュー別 提供状況</div>
+            <div class="card-row">
+                <div class="card orange">
+                    <div class="card-title">🍚 丼もの</div>
+                    <div class="card-time"><span id="don_time">0</span>分</div>
+                    <div class="card-wait" id="don_wait_text"><span id="don_people">0</span>人待ち</div>
+                    <img id="don_image" class="status-img" src="lv1.png" alt="">
+                </div>
+                <div class="card green">
+                    <div class="card-title">🍜 麺類</div>
+                    <div class="card-time"><span id="noodle_time">0</span>分</div>
+                    <div class="card-wait" id="noodle_wait_text"><span id="noodle_people">0</span>人待ち</div>
+                    <img id="noodle_image" class="status-img" src="lv1.png" alt="">
+                </div>
+            </div>
+        </div>
+        
+        <div>
+            <div class="section-title">❌ 売り切れ情報</div>
+            <div class="soldout-box" id="soldout_container"></div>
+        </div>
+
+        <div style="text-align:center; padding: 20px 0; color:#999; font-size:12px;">データは3秒ごとに自動更新されます</div>
+    </div>
+
+<script>
+    function loadMobileData() {
+        Promise.all([
+            fetch('data.json?' + new Date().getTime()).then(res => res.json()),
+            fetch('menu.json?' + new Date().getTime()).then(res => res.json()),
+            fetch('kitchen_api.php?' + new Date().getTime()).then(res => res.json())
+        ])
+        .then(([adminData, menuData, ordersData]) => {
+            
+            // ==========================================
+            // ① 提供時間の自動計算 (kitchen_api.php)
+            // ==========================================
+            let autoDonPeople = 0;    let autoDonTimeSec = 0;
+            let autoNoodlePeople = 0; let autoNoodleTimeSec = 0;
+
+            ordersData.forEach(order => {
+                if (order.type === 'don') { autoDonPeople += 1; autoDonTimeSec += (order.cook_time || 0); } 
+                else if (order.type === 'noodle') { autoNoodlePeople += 1; autoNoodleTimeSec += (order.cook_time || 0); }
+            });
+
+            // 厨房の計算結果 ＋ admin.phpの手動追加分
+            let finalDonTime = Math.ceil(autoDonTimeSec / 60) + (adminData.don?.time || 0);
+            let finalNoodleTime = Math.ceil(autoNoodleTimeSec / 60) + (adminData.noodle?.time || 0);
+
+            document.getElementById('don_people').innerText = autoDonPeople; 
+            document.getElementById('don_time').innerText = finalDonTime;
+            document.getElementById('noodle_people').innerText = autoNoodlePeople; 
+            document.getElementById('noodle_time').innerText = finalNoodleTime;
+
+            const THRESHOLD_LV2 = 5, THRESHOLD_LV3 = 10, COLOR_LV2 = '#d4a017', COLOR_LV3 = '#ce1b22';
+            let donImg = document.getElementById('don_image'), donText = document.getElementById('don_wait_text');
+            if (autoDonPeople >= THRESHOLD_LV3) { donImg.src = 'lv3.png'; donText.style.color = COLOR_LV3; }
+            else if (autoDonPeople >= THRESHOLD_LV2) { donImg.src = 'lv2.png'; donText.style.color = COLOR_LV2; }
+            else { donImg.src = 'lv1.png'; donText.style.color = '#ea8c12'; }
+
+            let noodleImg = document.getElementById('noodle_image'), noodleText = document.getElementById('noodle_wait_text');
+            if (autoNoodlePeople >= THRESHOLD_LV3) { noodleImg.src = 'lv3.png'; noodleText.style.color = COLOR_LV3; }
+            else if (autoNoodlePeople >= THRESHOLD_LV2) { noodleImg.src = 'lv2.png'; noodleText.style.color = COLOR_LV2; }
+            else { noodleImg.src = 'lv1.png'; noodleText.style.color = '#2ca04a'; }
+
+            // ==========================================
+            // ② 売り切れ情報の表示 (本日の曜日でフィルター)
+            // ==========================================
+            let soldoutContainer = document.getElementById('soldout_container');
+            soldoutContainer.innerHTML = ''; 
+            let soldoutCount = 0;
+            
+            let today = new Date().getDay();
+
+            menuData.forEach(menu => {
+                if (menu.available_days && menu.available_days.includes(today)) {
+                    if (menu.soldout === true) {
+                        // バグだった「soldout-badge」を正しい「badge」クラスに修正しました
+                        soldoutContainer.innerHTML += `
+                            <div class="soldout-item">
+                                <span>${menu.name}</span><span class="badge">売り切れ</span>
+                            </div>`;
+                        soldoutCount++;
+                    }
+                }
+            });
+
+            if (soldoutCount === 0) {
+                soldoutContainer.innerHTML = '<div style="text-align:center; color:#666;">現在売り切れはありません</div>';
+            }
+        })
+        .catch(error => console.log("データ読み込みエラー:", error));
+    }
+    
+    loadMobileData(); 
+    setInterval(loadMobileData, 3000);
+</script>
+</body>
+</html>

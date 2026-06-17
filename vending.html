@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>【スマホ版】学食 券売機混雑状況</title>
+    <style>
+        body { margin: 0; padding: 0; background-color: #f4f4f9; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; color: #333; }
+        .header { background-color: #ff9800; color: #fff; padding: 15px; text-align: center; font-size: 20px; font-weight: bold; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .container { padding: 15px; display: flex; flex-direction: column; gap: 20px; }
+        .section-title { font-size: 18px; font-weight: bold; border-left: 5px solid #ff9800; padding-left: 10px; margin-bottom: 10px; }
+        
+        /* 券売機待ちパネル */
+        .total-card { background: #fff; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.15); margin-bottom: 15px; border: 2px solid #ccc; transition: all 0.3s ease; }
+        .total-card.level-1 { border-color: #4caf50; background: #e8f5e9; } 
+        .total-card.level-2 { border-color: #ff9800; background: #fff3e0; } 
+        .total-card.level-3 { border-color: #f44336; background: #ffebee; } 
+        
+        .total-title { font-size: 18px; font-weight: bold; margin-bottom: 10px; }
+        .total-status { font-size: 28px; font-weight: 900; margin-bottom: 10px; }
+        .total-info { display: flex; justify-content: space-around; font-size: 16px; font-weight: bold; }
+        .total-info div span { font-size: 24px; font-weight: 900; }
+    </style>
+</head>
+<body>
+    <div class="header">高専品川 学生食堂ナビ</div>
+    <div class="container">
+        
+        <div>
+            <div class="section-title">🎫 券売機の混雑状況</div>
+            <div id="total_card" class="total-card level-1">
+                <div class="total-title">現在の券売機エリア</div>
+                <div id="total_status" class="total-status" style="color: #4caf50;">🟢 空いています</div>
+                <div class="total-info">
+                    <div>券売機待ち<br><span id="vending_people">0</span> 人</div>
+                    <div>購入まで<br>約 <span id="vending_time">0</span> 分</div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align:center; padding: 20px 0; color:#999; font-size:12px;">データは3秒ごとに自動更新されます</div>
+    </div>
+
+<script>
+    function loadMobileData() {
+        // 券売機に必要なのは data.json だけなので、menuやkitchenのfetchは削除して超軽量化
+        fetch('data.json?' + new Date().getTime())
+        .then(res => res.json())
+        .then(adminData => {
+            // ==========================================
+            // 券売機の待ち状況表示 (vending_machine)
+            // ==========================================
+            let vending = adminData.vending_machine || { people: 0, time: 0 };
+            document.getElementById('vending_people').innerText = vending.people;
+            document.getElementById('vending_time').innerText = vending.time;
+
+            let totalCard = document.getElementById('total_card');
+            let totalStatus = document.getElementById('total_status');
+            totalCard.classList.remove('level-1', 'level-2', 'level-3');
+            
+            // 人数に応じてパネルの色と文字を変える
+            if (vending.people >= 10) {
+                totalCard.classList.add('level-3'); 
+                totalStatus.innerHTML = "🚨 大変混雑しています"; 
+                totalStatus.style.color = "#f44336";
+            } else if (vending.people >= 5) {
+                totalCard.classList.add('level-2'); 
+                totalStatus.innerHTML = "⚠️ やや混雑しています"; 
+                totalStatus.style.color = "#ff9800";
+            } else {
+                totalCard.classList.add('level-1'); 
+                totalStatus.innerHTML = "🟢 空いています"; 
+                totalStatus.style.color = "#4caf50";
+            }
+        })
+        .catch(error => console.log("データ読み込みエラー:", error));
+    }
+    
+    // 最初に実行＆3秒ごとにリピート
+    loadMobileData(); 
+    setInterval(loadMobileData, 3000);
+</script>
+</body>
+</html>
