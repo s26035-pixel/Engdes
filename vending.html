@@ -20,6 +20,9 @@
         .total-status { font-size: 28px; font-weight: 900; margin-bottom: 10px; }
         .total-info { display: flex; justify-content: space-around; font-size: 16px; font-weight: bold; }
         .total-info div span { font-size: 24px; font-weight: 900; }
+
+        /* 追加：画像のサイズ調整用スタイル */
+        .status-img { width: 70px; height: auto; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -30,8 +33,13 @@
             <div class="section-title">🎫 券売機の混雑状況</div>
             <div id="total_card" class="total-card level-1">
                 <div class="total-title">現在の券売機エリア</div>
-                <div id="total_status" class="total-status" style="color: #4caf50;"> 空いています</div>
-                <div class="total-info">
+                <div id="total_status" class="total-status" style="color: #4caf50;">空いています</div>
+                
+                <div>
+                    <img id="vending_image" class="status-img" src="lv1.png" alt="混雑度アイコン">
+                </div>
+
+                <div class="total-info" style="margin-top: 15px;">
                     <div>券売機待ち<br><span id="vending_people">0</span> 人</div>
                     <div>購入まで<br>約 <span id="vending_time">0</span> 分</div>
                 </div>
@@ -43,7 +51,6 @@
 
 <script>
     function loadMobileData() {
-        // 券売機に必要なのは data.json だけなので、menuやkitchenのfetchは削除して超軽量化
         fetch('data.json?' + new Date().getTime())
         .then(res => res.json())
         .then(adminData => {
@@ -56,27 +63,31 @@
 
             let totalCard = document.getElementById('total_card');
             let totalStatus = document.getElementById('total_status');
+            let vendingImg = document.getElementById('vending_image'); // ★画像要素を取得
+            
             totalCard.classList.remove('level-1', 'level-2', 'level-3');
             
-            // 人数に応じてパネルの色と文字を変える
+            // 人数に応じてパネルの色・文字・画像を切り替える
             if (vending.people >= 10) {
                 totalCard.classList.add('level-3'); 
                 totalStatus.innerHTML = "🚨 大変混雑しています"; 
                 totalStatus.style.color = "#f44336";
+                vendingImg.src = "lv3.png"; // ★大混雑はlv3
             } else if (vending.people >= 5) {
                 totalCard.classList.add('level-2'); 
                 totalStatus.innerHTML = "⚠️ やや混雑しています"; 
                 totalStatus.style.color = "#ff9800";
+                vendingImg.src = "lv2.png"; // ★中混雑はlv2
             } else {
                 totalCard.classList.add('level-1'); 
-                totalStatus.innerHTML = " 空いています"; 
+                totalStatus.innerHTML = "🟢 空いています"; 
                 totalStatus.style.color = "#4caf50";
+                vendingImg.src = "lv1.png"; // ★空いているときはlv1
             }
         })
         .catch(error => console.log("データ読み込みエラー:", error));
     }
     
-    // 最初に実行＆3秒ごとにリピート
     loadMobileData(); 
     setInterval(loadMobileData, 3000);
 </script>
