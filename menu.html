@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>【メニュー】高専品川 学生食堂ナビ</title>
+    <style>
+        /* 全体の雰囲気を優しく */
+        body { 
+            margin: 0; padding: 0; 
+            background-color: #fffaf0; /* 薄いクリーム色 */
+            font-family: 'Hiragino Maru Gothic ProN', 'Rounded Mplus 1c', sans-serif; /* 丸ゴシック体 */
+            color: #555; /* 少し柔らかい黒 */
+            padding-bottom: 80px; /* フッターの分 */
+        }
+
+        /* ヘッダーをかわいく */
+        .header { 
+            background: linear-gradient(135deg, #ffb74d, #ff8a65); /* パステルオレンジのグラデ */
+            color: #fff; 
+            padding: 18px; 
+            text-align: center; 
+            font-size: 22px; 
+            font-weight: bold; 
+            border-radius: 0 0 20px 20px; /* 下だけ丸く */
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            letter-spacing: 1px;
+        }
+
+        .container { 
+            padding: 15px; 
+            position: relative; /* 時刻を右上に配置するための基準 */
+        }
+
+        /* 曜日選択エリアのコンテナ */
+        .select-container {
+            position: relative;
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+
+        /* 曜日選択エリアをかわいく */
+        .today-info {
+            background-color: #fff;
+            padding: 18px 15px 15px 15px;
+            border-radius: 15px; /* もっと丸く */
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05); /* 柔らかい影 */
+            color: #ff8a65; /* サーモンピンク */
+            display: flex;
+            justify-content: flex-start; /* 左側に寄せる */
+            align-items: center;
+            gap: 10px;
+            border: 2px solid #ffe0b2; /* 薄いオレンジの枠 */
+        }
+
+        /* 🎀 大きくなって右上に移動した時刻表示エリア */
+        #update-time {
+            font-size: 18px; /* さらに大きく！ */
+            color: #ff7043; /* 少し濃いめのかわいいオレンジピンク */
+            font-weight: bold;
+            background: #fff0f5; /* ほんのり苺ミルク色 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 6px 16px;
+            border-radius: 20px; /* ぷっくり丸い形 */
+            box-shadow: 0 4px 6px rgba(255, 138, 101, 0.15); /* ピンクゴールドっぽい柔らかい影 */
+            border: 2px dashed #ffab91; /* かわいさ満点の点線デザイン */
+            
+            /* 💡 右上に浮かせるための設定 */
+            position: absolute;
+            right: 15px;
+            top: -12px;
+            z-index: 10;
+            
+            animation: popIn 0.5s ease-out; /* 開いたときにポヨンと動く */
+        }
+
+        /* 登場時のポヨンとしたアニメーション */
+        @keyframes popIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            70% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* カテゴリの見出しをかわいく */
+        .category-title {
+            font-size: 19px;
+            font-weight: bold;
+            margin: 25px 0 12px 5px;
+            color: #ff8a65;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .category-title::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 24px;
+            background-color: #ffb74d;
+            border-radius: 4px; /* 丸い棒 */
+        }
+
+        /* メニューカードをかわいく */
+        .menu-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .menu-item-card {
+            background: #fff;
+            padding: 18px;
+            border-radius: 18px; /* もっと丸く */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #fff3e0; /* ごく薄い枠 */
+            transition: transform 0.2s;
+        }
+        .menu-item-card:active {
+            transform: scale(0.98); /* タップした時に少し沈む */
+        }
+
+        .menu-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .menu-name {
+            font-size: 17px;
+            font-weight: bold;
+            color: #444;
+        }
+
+        .menu-price {
+            font-size: 15px;
+            color: #ff8a65; /* 価格もピンクに */
+            font-weight: bold;
+        }
+
+        /* ステータスバッジをかわいく */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            min-width: 65px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        /* 販売中: 薄い緑 */
+        .status-available { 
+            background-color: #e8f5e9; 
+            color: #2e7d32; 
+            border: 1px solid #c8e6c9;
+        } 
+        /* 売り切れ: 薄い赤 */
+        .status-soldout { 
+            background-color: #ffebee; 
+            color: #c62828; 
+            border: 1px solid #ffcdd2;
+        }   
+
+        /* フッターナビをかわいく */
+        .footer-nav {
+            position: fixed;
+            bottom: 10px; /* 少し浮かせる */
+            left: 10px;
+            right: 10px;
+            background-color: rgba(255, 255, 255, 0.95); /* 少し透けさせる */
+            display: flex;
+            justify-content: space-around;
+            border-radius: 30px; /* すごく丸く */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            z-index: 1000;
+            padding: 5px 0;
+            backdrop-filter: blur(5px); /* 背景をぼかす */
+        }
+
+        .nav-item {
+            flex: 1;
+            text-align: center;
+            padding: 10px 0;
+            text-decoration: none;
+            color: #bbb; /* 通常時は薄く */
+            font-size: 11px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            position: relative;
+            transition: color 0.3s;
+        }
+
+        .nav-item .icon { 
+            font-size: 24px; /* アイコンを大きく */
+            transition: transform 0.3s;
+        }
+        
+        /* アクティブな時をかわいく */
+        .nav-item.active { 
+            color: #ff8a65; 
+            font-weight: bold; 
+        }
+        .nav-item.active .icon {
+            transform: translateY(-5px) scale(1.1); /* ポヨンと上に動く */
+        }
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            width: 15px;
+            height: 3px;
+            background-color: #ff8a65;
+            border-radius: 2px;
+        }
+
+        /* セレクトボックス自体もかわいく */
+        #day-select {
+            font-size: 16px; 
+            padding: 6px 12px; 
+            font-weight: bold; 
+            border-radius: 10px; 
+            border: 2px solid #ffb74d; 
+            color: #ff8a65; 
+            background: #fff;
+            cursor: pointer;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">🍽️ 学食メニュー一覧<span class="experiment-badge">　実証実験中</span></div>
+    
+    <div class="container">
+        <!-- 曜日切り替えと時刻のエリアをまとめた親要素 -->
+        <div class="select-container">
+            <div class="today-info">
+                <label for="day-select">🗓️ 曜日：</label>
+                <select id="day-select">
+                </select>
+            </div>
+            <!-- 右上に出るかわいい時刻表示エリア -->
+            <div id="update-time"></div>
+        </div>
+        
+        <div id="menu-container"></div>
+    </div>
+
+    <nav class="footer-nav">
+        <a href="menu.html" class="nav-item active">
+            <span class="icon">📋</span>
+            <span>メニュー</span>
+        </a>
+        <a href="vending.html" class="nav-item">
+            <span class="icon">🎫</span>
+            <span>券売機</span>
+        </a>
+        <a href="kitchen.html" class="nav-item">
+            <span class="icon">🕰️</span>
+            <span>状況</span>
+        </a>
+        <a href="seatmap.html" class="nav-item">
+            <span class="icon">🪑</span>
+            <span>空席</span>
+        </a>
+    </nav>
+
+    <script>
+        const categoryMap = {
+            'don': '🍛 丼もの・カレー',
+            'noodle': '🍜 麺類',
+            'other': '🍰 サイド・デザート'
+        };
+
+        const dayNames = {
+            1: "月曜日",
+            2: "火曜日",
+            3: "水曜日",
+            4: "木曜日",
+            5: "金曜日"
+        };
+
+        let cachedMenuData = null;
+
+        function initMenu() {
+            // 1. 今日の実際の曜日（1=月〜5=金）を自動判定
+            const today = new Date();
+            let currentDay = today.getDay(); 
+            // 土日（0または6）の場合は、テスト用に「1（月曜日）」を本日扱いにします
+            if (currentDay === 0 || currentDay === 6) currentDay = 1;
+
+            // 2. セレクトボックス（プルダウン）の中身を自動で作る
+            const daySelect = document.getElementById('day-select');
+            daySelect.innerHTML = ''; // 一度空にする
+
+            for (let i = 1; i <= 5; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                
+                // 🔍 もしループの曜日が「今日の曜日」と同じなら「（本日）」を付ける
+                if (i === currentDay) {
+                    option.innerText = `${dayNames[i]} (本日)`;
+                } else {
+                    option.innerText = dayNames[i];
+                }
+                daySelect.appendChild(option);
+            }
+
+            // 3. デフォルト（初期値）として今日の曜日を選択状態にする
+            daySelect.value = currentDay;
+
+            // 4. menu.json データの読み込み
+            fetch('menu.json?' + new Date().getTime())
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`ファイルが見つからないか、読み込めません (Status: ${res.status})`);
+                }
+                return res.json();
+            })
+            .then(menuData => {
+                cachedMenuData = menuData;
+
+                // データを読み込んだ現在の時刻を「XX:XX」形式で表示
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                document.getElementById('update-time').innerHTML = `  ${hours}:${minutes}`;
+
+                // 初期表示として「本日」のメニューを出す
+                displayMenu(currentDay);
+
+                // プルダウンが切り替わったらその曜日のメニューに更新
+                daySelect.addEventListener('change', (e) => {
+                    displayMenu(parseInt(e.target.value));
+                });
+            })
+            .catch(error => {
+                console.error("エラー詳細:", error);
+                document.getElementById('menu-container').innerHTML = `
+                    <p style="color:#d32f2f; text-align:center; font-weight:bold; margin-top:30px; background:#ffebee; padding:20px; border-radius:15px;">
+                        😭 メニューが読み込めなかったよ...<br>
+                        <span style="font-size:12px; color:#c62828; font-weight:normal;">理由: ${error.message}</span>
+                    </p>`;
+            });
+        }
+
+        // メニュー画面を組み立てる関数
+        function displayMenu(targetDay) {
+            if (!cachedMenuData) return;
+
+            const container = document.getElementById('menu-container');
+            container.innerHTML = ''; 
+
+            const filteredMenu = cachedMenuData.filter(item => {
+                return item.available_days && item.available_days.includes(targetDay);
+            });
+
+            const groupedMenu = {};
+            filteredMenu.forEach(item => {
+                const type = item.type || 'other';
+                if (!groupedMenu[type]) {
+                    groupedMenu[type] = [];
+                }
+                groupedMenu[type].push(item);
+            });
+
+            const displayOrder = ['don', 'noodle', 'other'];
+
+            displayOrder.forEach(type => {
+                if (groupedMenu[type] && groupedMenu[type].length > 0) {
+                    
+                    const categoryTitle = document.createElement('div');
+                    categoryTitle.className = 'category-title';
+                    categoryTitle.innerText = categoryMap[type] || 'その他';
+                    container.appendChild(categoryTitle);
+
+                    const menuList = document.createElement('div');
+                    menuList.className = 'menu-list';
+
+                    groupedMenu[type].forEach(item => {
+                        const card = document.createElement('div');
+                        card.className = 'menu-item-card';
+
+                        let statusClass = 'status-available';
+                        let statusText = '販売中♪'; 
+                        if (item.soldout === true || item.soldout === "true") {
+                            statusClass = 'status-soldout';
+                            statusText = 'Sold Out...泣';
+                        }
+
+                        card.innerHTML = `
+                            <div class="menu-info">
+                                <span class="menu-name">${item.name}</span>
+                                <span class="menu-price">¥${item.price}</span>
+                            </div>
+                            <span class="status-badge ${statusClass}">${statusText}</span>
+                        `;
+                        menuList.appendChild(card);
+                    });
+
+                    container.appendChild(menuList);
+                }
+            });
+        }
+
+        // 実行
+        initMenu();
+    </script>
+</body>
+</html>
