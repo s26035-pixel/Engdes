@@ -244,25 +244,29 @@
                 });
             }
 
+            // data.json の人数（手動設定値）と API の注文人数を合算する
+            let finalDonPeople = autoDonPeople + (adminData.don?.people || 0);
+            let finalNoodlePeople = autoNoodlePeople + (adminData.noodle?.people || 0);
+
             let finalDonTime = Math.ceil(autoDonTimeSec / 60) + (adminData.don?.time || 0);
             let finalNoodleTime = Math.ceil(autoNoodleTimeSec / 60) + (adminData.noodle?.time || 0);
 
-            document.getElementById('don_people').innerText = autoDonPeople; 
+            document.getElementById('don_people').innerText = finalDonPeople; 
             document.getElementById('don_time').innerText = finalDonTime;
-            document.getElementById('noodle_people').innerText = autoNoodlePeople; 
+            document.getElementById('noodle_people').innerText = finalNoodlePeople; 
             document.getElementById('noodle_time').innerText = finalNoodleTime;
 
-            // マイルドなパステル警告カラー
+            // マイルドなパステル警告カラー（合算後の人数でアイコンと色も切り替え）
             const THRESHOLD_LV2 = 5, THRESHOLD_LV3 = 10, COLOR_LV2 = '#ffb74d', COLOR_LV3 = '#e57373';
             
             let donImg = document.getElementById('don_image'), donText = document.getElementById('don_wait_text');
-            if (autoDonPeople >= THRESHOLD_LV3) { donImg.src = 'lv3.png'; donText.style.color = COLOR_LV3; }
-            else if (autoDonPeople >= THRESHOLD_LV2) { donImg.src = 'lv2.png'; donText.style.color = COLOR_LV2; }
+            if (finalDonPeople >= THRESHOLD_LV3) { donImg.src = 'lv3.png'; donText.style.color = COLOR_LV3; }
+            else if (finalDonPeople >= THRESHOLD_LV2) { donImg.src = 'lv2.png'; donText.style.color = COLOR_LV2; }
             else { donImg.src = 'lv1.png'; donText.style.color = '#ffb74d'; }
 
             let noodleImg = document.getElementById('noodle_image'), noodleText = document.getElementById('noodle_wait_text');
-            if (autoNoodlePeople >= THRESHOLD_LV3) { noodleImg.src = 'lv3.png'; noodleText.style.color = COLOR_LV3; }
-            else if (autoNoodlePeople >= THRESHOLD_LV2) { noodleImg.src = 'lv2.png'; noodleText.style.color = COLOR_LV2; }
+            if (finalNoodlePeople >= THRESHOLD_LV3) { noodleImg.src = 'lv3.png'; noodleText.style.color = COLOR_LV3; }
+            else if (finalNoodlePeople >= THRESHOLD_LV2) { noodleImg.src = 'lv2.png'; noodleText.style.color = COLOR_LV2; }
             else { noodleImg.src = 'lv1.png'; noodleText.style.color = '#a5d6a7'; }
 
             let soldoutContainer = document.getElementById('soldout_container');
