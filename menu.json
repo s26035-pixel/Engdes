@@ -175,7 +175,7 @@
         "name": "唐揚げカレーM",
         "price": 510,
         "type": "don",
-        "soldout": false,
+        "soldout": true,
         "cook_time": 35,
         "available_days": [
             1,
@@ -294,7 +294,7 @@
         "name": "唐揚げ冷麺",
         "price": 550,
         "type": "noodle",
-        "soldout": false,
+        "soldout": true,
         "cook_time": 120,
         "available_days": [
             1,
@@ -429,7 +429,7 @@
         "name": "モンブラン",
         "price": 160,
         "type": "other",
-        "soldout": false,
+        "soldout": true,
         "cook_time": 0,
         "available_days": [
             2
