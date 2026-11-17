@@ -222,9 +222,10 @@
 
     function loadMobileData() {
         Promise.all([
-            fetch('data.json?' + new Date().getTime()).then(res => res.json()),
-            fetch('menu.json?' + new Date().getTime()).then(res => res.json()),
-            fetch('kitchen_api.php?' + new Date().getTime()).then(res => res.json())
+            fetch('data.json?' + new Date().getTime()).then(res => res.json()).catch(() => ({})),
+            fetch('menu.json?' + new Date().getTime()).then(res => res.json()).catch(() => ([])),
+            // GitHub PagesではPHPが動かないため、エラー時は空配列を返して止まらないようにする
+            fetch('kitchen_api.php?' + new Date().getTime()).then(res => res.json()).catch(() => ([]))
         ])
         .then(([adminData, menuData, ordersData]) => {
             
