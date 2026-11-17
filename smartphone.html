@@ -5,47 +5,214 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>【スマホ版】学食 混雑状況</title>
     <style>
-        body { margin: 0; padding: 0; background-color: #f4f4f9; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; color: #333; }
-        .header { background-color: #ff9800; color: #fff; padding: 15px; text-align: center; font-size: 20px; font-weight: bold; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        /* 全体の雰囲気を優しく */
+        body { 
+            margin: 0; padding: 0; 
+            background-color: #efede8; /* 薄いクリーム色 */
+            font-family: 'Hiragino Maru Gothic ProN', 'Rounded Mplus 1c', sans-serif; /* 丸ゴシック体 */
+            color: #555; /* 少し柔らかい黒 */
+            padding-bottom: 80px; 
+        }
+        
+        /* ヘッダーをおそろいのかわいさに */
+        .header { 
+            background: linear-gradient(135deg, #eceae9, #f6f2ee); /* グレージュ系のグラデ */
+            color: #ee9c59; 
+            padding: 18px; 
+            text-align: center; 
+            font-size: 22px; 
+            font-weight: bold; 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            border-radius: 0 0 20px 20px; /* 下だけ丸く */
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            letter-spacing: 1px;
+        }
+        
         .container { padding: 15px; display: flex; flex-direction: column; gap: 20px; }
-        .section-title { font-size: 18px; font-weight: bold; border-left: 5px solid #ff9800; padding-left: 10px; margin-bottom: 10px; }
         
-        /* 券売機待ちパネル */
-        .total-card { background: #fff; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.15); margin-bottom: 15px; border: 2px solid #ccc; transition: all 0.3s ease; }
-        .total-card.level-1 { border-color: #4caf50; background: #e8f5e9; } 
-        .total-card.level-2 { border-color: #ff9800; background: #fff3e0; } 
-        .total-card.level-3 { border-color: #f44336; background: #ffebee; } 
-        
-        .total-title { font-size: 18px; font-weight: bold; margin-bottom: 10px; }
-        .total-status { font-size: 28px; font-weight: 900; margin-bottom: 10px; }
-        .total-info { display: flex; justify-content: space-around; font-size: 16px; font-weight: bold; }
-        .total-info div span { font-size: 24px; font-weight: 900; }
+        /* タイトルエリア */
+        .title-area { 
+            position: relative;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
 
-        /* カード（提供状況） */
-        .card-row { display: flex; gap: 10px; }
-        .card { flex: 1; background: #fff; border-radius: 8px; border-top: 5px solid; padding: 10px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .card.orange { border-color: #ea8c12; } .card.green { border-color: #2ca04a; }
-        .card-title { font-weight: bold; margin-bottom: 5px; font-size: 16px;}
-        .card-time { font-size: 24px; font-weight: 900; }
-        .card-wait { font-size: 14px; margin-top: 5px; font-weight: bold; transition: color 0.5s ease;}
-        .status-img { width: 60px; height: auto; margin-top: 5px; }
+        /* タイトルをかわいく */
+        .section-title { 
+            font-size: 19px; 
+            font-weight: bold; 
+            color: #ff8a65;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 24px;
+            background-color: #eac48c;
+            border-radius: 4px;
+        }
         
-        /* 売り切れ情報 */
-        .soldout-box { background: #fff; border-radius: 8px; border-top: 5px solid #ce1b22; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .soldout-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #ccc; padding: 8px 0; font-size: 14px; font-weight: bold; }
-        .badge { background: #ce1b22; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+        /* ⏰ 時刻バッジを真ん中に配置するためのラッパー */
+        .time-center-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+            margin-bottom: -5px;
+            width: 100%;
+        }
+
+        /* 🎀 真ん中に出てくる時刻表示エリア */
+        #update-time {
+            font-size: 24px; 
+            color: #060302; 
+            font-weight: 900;
+            background: #f5faf9; 
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 4px 6px rgba(255, 138, 101, 0.15); 
+            border: 2.5px dashed #060302; 
+            min-width: 80px; 
+            text-align: center;
+            z-index: 10;
+        }
+
+        /* 券売機待ちパネル */
+        .total-card { 
+            background: #fff; 
+            border-radius: 18px; 
+            padding: 18px; 
+            text-align: center; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
+            margin-bottom: 15px; 
+            border: 2px solid #e9e5dd; 
+            transition: all 0.3s ease; 
+        }
+        .total-card.level-1 { border-color: #68ca6b; background: #fff; } 
+        .total-card.level-2 { border-color: #eebe5f; background: #fff; } 
+        .total-card.level-3 { border-color: #e57373; background: #fff; } 
+        
+        .total-title { font-size: 16px; font-weight: bold; color: #777; margin-bottom: 5px; }
+        .total-status { font-size: 26px; font-weight: 900; margin-bottom: 12px; }
+        .total-info { display: flex; justify-content: space-around; font-size: 15px; font-weight: bold; }
+        .total-info div { background: #f6f2ee; padding: 8px 15px; border-radius: 12px; min-width: 90px; color: #555; }
+        .total-info div span { font-size: 26px; font-weight: 900; color: #0e0908; }
+
+        /* 提供状況カードのデザイン */
+        .card-row { display: flex; gap: 12px; }
+        .card { 
+            flex: 1; 
+            background: #fff; 
+            border-radius: 18px; 
+            border-top: 6px solid; 
+            padding: 15px 10px; 
+            text-align: center; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
+        }
+        .card.orange { border-color: #eebe5f; } 
+        .card.green { border-color: #68ca6b; }
+        
+        .card-title { font-weight: bold; margin-bottom: 8px; font-size: 16px; color: #444; }
+        .card-time { font-size: 26px; font-weight: 900; color: #0e0908; }
+        .card-wait { font-size: 13px; margin-top: 5px; font-weight: bold; color: #888; transition: color 0.5s ease; }
+        .status-img { width: 60px; height: auto; margin-top: 8px; }
+        
+        /* 売り切れ情報ボックス */
+        .soldout-box { 
+            background: #fff; 
+            border-radius: 18px; 
+            border-top: 6px solid #ffffff; 
+            padding: 18px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
+            border-left: 1px solid #fff3e0;
+            border-right: 1px solid #fff3e0;
+            border-bottom: 1px solid #fff3e0;
+        }
+        .soldout-item { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 1px dashed #e9e5dd; 
+            padding: 10px 4px; 
+            font-size: 15px; 
+            font-weight: bold; 
+            color: #555;
+        }
+        .soldout-item:last-child { border-bottom: none; }
+        .badge { 
+            background: #0b0a0a; 
+            color: #fff; 
+            padding: 3px 10px; 
+            border-radius: 20px; 
+            font-size: 11px; 
+            box-shadow: 0 2px 4px rgba(239, 154, 154, 0.3);
+        }
         
         /* マップ領域 */
-        .map-box { background: #fff; border-radius: 8px; padding: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .map-box { background: #fff; border-radius: 18px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #e9e5dd; }
         .map-wrapper { position: relative; width: 100%; display: block; }
-        .map-image { width: 100%; height: auto; display: block; border-radius: 4px; }
-        .table { position: absolute; border: 1px solid #222; border-radius: 2px; transition: background-color 0.5s ease; box-sizing: border-box; }
-        .status-0 { background-color: #0047AB; } .status-1 { background-color: #FFC107; } .status-2 { background-color: #E53935; }
-        .legend-bar { display: flex; justify-content: space-around; margin-top: 10px; font-size: 12px; font-weight: bold; }
-        .legend-item { display: flex; align-items: center; gap: 5px; }
-        .legend-color { width: 15px; height: 15px; border-radius: 3px; border: 1px solid #333; }
+        .map-image { width: 100%; height: auto; display: block; border-radius: 12px; }
+        .table { position: absolute; border: 1px solid #222; border-radius: 3px; transition: background-color 0.5s ease; box-sizing: border-box; }
+        
+        /* マップの状況色も少しパステル寄りにマイルド化 */
+        .status-0 { background-color: #4a90e2; } /* 優しい青 */
+        .status-1 { background-color: #eebe5f; } /* 優しい黄 */
+        .status-2 { background-color: #e57373; } /* 優しい赤 */
+        
+        .legend-bar { display: flex; justify-content: space-around; margin-top: 15px; font-size: 13px; font-weight: bold; color: #666; }
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+        .legend-color { width: 16px; height: 16px; border-radius: 4px; border: 1px solid #555; }
 
-        /* 座席配置のCSS */
+        /* フッターナビをおそろいのかわいさに */
+        .footer-nav {
+            position: fixed;
+            bottom: 10px; 
+            left: 10px;
+            right: 10px;
+            background-color: rgba(255, 255, 255, 0.95); 
+            display: flex;
+            justify-content: space-around;
+            border-radius: 30px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            z-index: 1000;
+            padding: 5px 0;
+            backdrop-filter: blur(5px); 
+        }
+        .nav-item {
+            flex: 1;
+            text-align: center;
+            padding: 10px 0;
+            text-decoration: none;
+            color: #bbb; 
+            font-size: 11px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            position: relative;
+            transition: color 0.3s;
+        }
+        .nav-item .icon { font-size: 24px; transition: transform 0.3s; }
+        .nav-item.active { color: #2b1711; font-weight: bold; }
+        .nav-item.active .icon { transform: translateY(-5px) scale(1.1); }
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            width: 15px;
+            height: 3px;
+            background-color: #ede4e1;
+            border-radius: 2px;
+        }
+
+        /* 座席配置のCSS（元の座標を完全維持） */
         #t1{top:58%;left:70%;width:3.5%;height:4%;} #t2{top:66%;left:70%;width:3.5%;height:4%;} #t3{top:74%;left:70%;width:3.5%;height:4%;}
         #t4{top:54%;left:62%;width:3.5%;height:7%;} #t5{top:61%;left:62%;width:3.5%;height:7%;} #t6{top:68%;left:62%;width:3.5%;height:7%;} #t7{top:75%;left:62%;width:3.5%;height:7%;}
         #t8{top:54%;left:56%;width:3.5%;height:7%;} #t9{top:61%;left:56%;width:3.5%;height:7%;} #t10{top:68%;left:56%;width:3.5%;height:7%;} #t11{top:75%;left:56%;width:3.5%;height:7%;}
@@ -64,15 +231,20 @@
     </style>
 </head>
 <body>
-    <div class="header">高専品川 学生食堂ナビ</div>
+    <div class="header">🍽️ 高専品川 学生食堂ナビ<span class="experiment-badge"> 実証実験中</span></div>
     <div class="container">
         
-        <!-- ★追加：券売機の待ち状況パネル -->
+        <!-- ⏰ 中央寄せのリアルタイム更新時刻バッジ -->
+        <div class="time-center-container">
+            <div id="update-time">--:--</div>
+        </div>
+        
+        <!-- 券売機の待ち状況パネル -->
         <div>
             <div class="section-title">🎫 券売機の混雑状況</div>
             <div id="total_card" class="total-card level-1">
                 <div class="total-title">現在の券売機エリア</div>
-                <div id="total_status" class="total-status" style="color: #4caf50;">🟢 空いています</div>
+                <div id="total_status" class="total-status" style="color: #68ca6b;">🟢 空いています</div>
                 <div class="total-info">
                     <div>券売機待ち<br><span id="vending_people">0</span> 人</div>
                     <div>購入まで<br>約 <span id="vending_time">0</span> 分</div>
@@ -101,17 +273,17 @@
         
         <!-- 売り切れ情報 -->
         <div>
-            <div class="section-title">❌ 売り切れ情報</div>
+            <div class="section-title">⚠️ 売り切れ情報 ⚠️</div>
             <div class="soldout-box" id="soldout_container"></div>
         </div>
         
         <!-- 空席マップ -->
         <div>
             <div class="section-title">🪑 空席マップ (混雑度: <span id="congestion_percent">0</span>%)</div>
-            <p style="font-size:12px; color:#666; margin:0 0 10px 0;">※画像はピンチアウトで拡大できます</p>
+            <p style="font-size:12px; color:#888; margin:5px 0 10px 0; font-weight: 500;">※画像はピンチアウトで拡大できます</p>
             <div class="map-box">
                 <div class="map-wrapper">
-                    <img src="image2.png" alt="マップ背景" class="map-image">
+                    <img src="image3.png" alt="マップ背景" class="map-image">
                     <div id="t1" class="table"></div><div id="t2" class="table"></div><div id="t3" class="table"></div><div id="t4" class="table"></div><div id="t5" class="table"></div><div id="t6" class="table"></div><div id="t7" class="table"></div><div id="t8" class="table"></div><div id="t9" class="table"></div><div id="t10" class="table"></div><div id="t11" class="table"></div><div id="t12" class="table"></div><div id="t13" class="table"></div><div id="t14" class="table"></div><div id="t15" class="table"></div><div id="t16" class="table"></div><div id="t17" class="table"></div><div id="t18" class="table"></div><div id="t19" class="table"></div><div id="t20" class="table"></div><div id="t21" class="table"></div><div id="t22" class="table"></div><div id="t23" class="table"></div><div id="t24" class="table"></div><div id="t25" class="table"></div><div id="t26" class="table"></div><div id="t27" class="table"></div><div id="t28" class="table"></div><div id="t29" class="table"></div><div id="t30" class="table"></div><div id="t31" class="table"></div><div id="t32" class="table"></div><div id="t33" class="table"></div><div id="t34" class="table"></div><div id="t35" class="table"></div><div id="t36" class="table"></div><div id="t37" class="table"></div><div id="t38" class="table"></div><div id="t39" class="table"></div><div id="t40" class="table"></div><div id="t41" class="table"></div><div id="t42" class="table"></div><div id="t43" class="table"></div><div id="t44" class="table"></div>
                 </div>
                 <div class="legend-bar">
@@ -121,10 +293,14 @@
                 </div>
             </div>
         </div>
-        <div style="text-align:center; padding: 20px 0; color:#999; font-size:12px;">データは3秒ごとに自動更新されます</div>
+        <div style="text-align:center; padding: 10px 0; color:#aaa; font-size:12px; font-weight: 500;">データは3秒ごとに自動更新されます</div>
     </div>
 
 <script>
+    function padZero(num) {
+        return num.toString().padStart(2, '0');
+    }
+
     function loadMobileData() {
         Promise.all([
             fetch('data.json?' + new Date().getTime()).then(res => res.json()),
@@ -143,13 +319,12 @@
             let totalCard = document.getElementById('total_card'), totalStatus = document.getElementById('total_status');
             totalCard.classList.remove('level-1', 'level-2', 'level-3');
             
-            // ★ 人数に応じてパネルの色と文字を変える
             if (vending.people >= 10) {
-                totalCard.classList.add('level-3'); totalStatus.innerHTML = "🚨 大変混雑しています"; totalStatus.style.color = "#f44336";
+                totalCard.classList.add('level-3'); totalStatus.innerHTML = "🚨 大変混雑しています"; totalStatus.style.color = "#e57373";
             } else if (vending.people >= 5) {
-                totalCard.classList.add('level-2'); totalStatus.innerHTML = "⚠️ やや混雑しています"; totalStatus.style.color = "#ff9800";
+                totalCard.classList.add('level-2'); totalStatus.innerHTML = "⚠️ やや混雑しています"; totalStatus.style.color = "#eebe5f";
             } else {
-                totalCard.classList.add('level-1'); totalStatus.innerHTML = "🟢 空いています"; totalStatus.style.color = "#4caf50";
+                totalCard.classList.add('level-1'); totalStatus.innerHTML = "🟢 空いています"; totalStatus.style.color = "#68ca6b";
             }
 
             // ==========================================
@@ -158,57 +333,56 @@
             let autoDonPeople = 0;    let autoDonTimeSec = 0;
             let autoNoodlePeople = 0; let autoNoodleTimeSec = 0;
 
-            ordersData.forEach(order => {
-                if (order.type === 'don') { autoDonPeople += 1; autoDonTimeSec += (order.cook_time || 0); } 
-                else if (order.type === 'noodle') { autoNoodlePeople += 1; autoNoodleTimeSec += (order.cook_time || 0); }
-            });
+            if (Array.isArray(ordersData)) {
+                ordersData.forEach(order => {
+                    if (order.type === 'don') { autoDonPeople += 1; autoDonTimeSec += (order.cook_time || 0); } 
+                    else if (order.type === 'noodle') { autoNoodlePeople += 1; autoNoodleTimeSec += (order.cook_time || 0); }
+                });
+            }
 
-            // 厨房の計算結果 ＋ admin.phpの手動追加分
-            let finalDonTime = Math.ceil(autoDonTimeSec / 60) + (adminData.don.time || 0);
-            let finalNoodleTime = Math.ceil(autoNoodleTimeSec / 60) + (adminData.noodle.time || 0);
+            let finalDonTime = Math.ceil(autoDonTimeSec / 60) + (adminData.don?.time || 0);
+            let finalNoodleTime = Math.ceil(autoNoodleTimeSec / 60) + (adminData.noodle?.time || 0);
 
             document.getElementById('don_people').innerText = autoDonPeople; document.getElementById('don_time').innerText = finalDonTime;
             document.getElementById('noodle_people').innerText = autoNoodlePeople; document.getElementById('noodle_time').innerText = finalNoodleTime;
 
-            const THRESHOLD_LV2 = 5, THRESHOLD_LV3 = 10, COLOR_LV2 = '#d4a017', COLOR_LV3 = '#ce1b22';
+            const THRESHOLD_LV2 = 5, THRESHOLD_LV3 = 10, COLOR_LV2 = '#ffb74d', COLOR_LV3 = '#e57373';
             let donImg = document.getElementById('don_image'), donText = document.getElementById('don_wait_text');
             if (autoDonPeople >= THRESHOLD_LV3) { donImg.src = 'lv3.png'; donText.style.color = COLOR_LV3; }
             else if (autoDonPeople >= THRESHOLD_LV2) { donImg.src = 'lv2.png'; donText.style.color = COLOR_LV2; }
-            else { donImg.src = 'lv1.png'; donText.style.color = '#ea8c12'; }
+            else { donImg.src = 'lv1.png'; donText.style.color = '#ffb74d'; }
 
             let noodleImg = document.getElementById('noodle_image'), noodleText = document.getElementById('noodle_wait_text');
             if (autoNoodlePeople >= THRESHOLD_LV3) { noodleImg.src = 'lv3.png'; noodleText.style.color = COLOR_LV3; }
             else if (autoNoodlePeople >= THRESHOLD_LV2) { noodleImg.src = 'lv2.png'; noodleText.style.color = COLOR_LV2; }
-            else { noodleImg.src = 'lv1.png'; noodleText.style.color = '#2ca04a'; }
+            else { noodleImg.src = 'lv1.png'; noodleText.style.color = '#a5d6a7'; }
 
             // ==========================================
-            // ② 売り切れ情報の表示 (本日の曜日でフィルター)
+            // ③ 売り切れ情報の表示 (本日の曜日でフィルター)
             // ==========================================
             let soldoutContainer = document.getElementById('soldout_container');
             soldoutContainer.innerHTML = ''; 
             let soldoutCount = 0;
-            
-            // ★ 本日の曜日を取得 (0:日, 1:月, 2:火, 3:水, 4:木, 5:金, 6:土)
             let today = new Date().getDay();
 
-            menuData.forEach(menu => {
-                // ★ 「販売日が設定されている」かつ「本日の曜日が配列に含まれている」場合のみ処理する
-                if (menu.available_days && menu.available_days.includes(today)) {
-                    // その上で、売り切れステータスが true のものだけを表示
-                    if (menu.soldout === true) {
-                        // smartphone.html の場合は <span class="soldout-badge"> を <span class="badge"> にしてください
-                        soldoutContainer.innerHTML += `
-                            <div class="soldout-item">
-                                <span>${menu.name}</span><span class="soldout-badge">売り切れ</span>
-                            </div>`;
-                        soldoutCount++;
+            if (Array.isArray(menuData)) {
+                menuData.forEach(menu => {
+                    if (menu.available_days && menu.available_days.includes(today)) {
+                        if (menu.soldout === true) {
+                            soldoutContainer.innerHTML += `
+                                <div class="soldout-item">
+                                    <span>${menu.name}</span><span class="badge">売り切れ</span>
+                                </div>`;
+                            soldoutCount++;
+                        }
                     }
-                }
-            });
+                });
+            }
 
             if (soldoutCount === 0) {
-                soldoutContainer.innerHTML = '<div style="text-align:center; color:#666;">現在売り切れはありません</div>';
+                soldoutContainer.innerHTML = '<div style="text-align:center; color:#888; font-size:14px; padding:10px 0;">🎉 現在売り切れはありません</div>';
             }
+            
             // ==========================================
             // ④ 空席マップの表示 (data.json)
             // ==========================================
@@ -220,10 +394,35 @@
                 });
             }
             document.getElementById('congestion_percent').innerText = maxScore > 0 ? Math.round((currentScore / maxScore) * 100) : 0;
+
+            // 💡 3秒ごとの自動更新に合わせて中央のバッジ時刻を自動書き換え
+            let now = new Date();
+            let timeStr = padZero(now.getHours()) + ':' + padZero(now.getMinutes());
+            document.getElementById('update-time').innerHTML = `${timeStr}`;
         })
         .catch(error => console.log("データ読み込みエラー:", error));
     }
     loadMobileData(); setInterval(loadMobileData, 3000);
 </script>
+
+<!-- 下部ナビゲーションを他画面と同じデザインで配置（状況がactive） -->
+<nav class="footer-nav">
+    <a href="menu.html" class="nav-item">
+        <span class="icon">📋</span>
+        <span>メニュー</span>
+    </a>
+    <a href="vending.html" class="nav-item">
+        <span class="icon">🎫</span>
+        <span>券売機</span>
+    </a>
+    <a href="kitchen.html" class="nav-item active">
+        <span class="icon">🕰️</span>
+        <span>状況</span>
+    </a>
+    <a href="seatmap.html" class="nav-item">
+        <span class="icon">🪑</span>
+        <span>空席</span>
+    </a>
+</nav>
 </body>
 </html>

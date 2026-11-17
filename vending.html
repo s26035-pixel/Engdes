@@ -9,7 +9,7 @@
         /* 全体の雰囲気を優しく */
         body { 
             margin: 0; padding: 0; 
-            background-color: #fffaf0; /* 薄いクリーム色 */
+            background-color: #efede8; /* 薄いクリーム色に統一 */
             font-family: 'Hiragino Maru Gothic ProN', 'Rounded Mplus 1c', sans-serif; /* 丸ゴシック体 */
             color: #555; /* 少し柔らかい黒 */
             padding-bottom: 80px; 
@@ -17,8 +17,8 @@
         
         /* ヘッダーをおそろいのかわいさに */
         .header { 
-            background: linear-gradient(135deg, #ffb74d, #ff8a65); /* パステルオレンジのグラデ */
-            color: #fff; 
+            background: linear-gradient(135deg, #eceae9, #f6f2ee); /* グレージュ系のグラデに統一 */
+            color: #ee9c59; /* 柔らかいオレンジ */
             padding: 18px; 
             text-align: center; 
             font-size: 22px; 
@@ -33,14 +33,7 @@
         
         .container { padding: 15px; display: flex; flex-direction: column; gap: 20px; }
         
-        /* タイトルと時刻をまとめるエリア */
-        .title-container {
-            position: relative;
-            margin-top: 10px;
-            margin-bottom: 5px;
-        }
-
-        /* タイトルをかわいく */
+        /* タイトルをかわく */
         .section-title { 
             font-size: 19px; 
             font-weight: bold; 
@@ -48,35 +41,40 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            padding-right: 110px; /* 時刻バッジ用の余白 */
         }
         .section-title::before {
             content: '';
             display: inline-block;
             width: 8px;
             height: 24px;
-            background-color: #ffb74d;
+            background-color: #eac48c; /* 左の縦棒のカラーを統一 */
             border-radius: 4px;
         }
         
-        /* 🎀 大きくなって右上に配置された時刻表示エリア */
-        #update-time {
-            font-size: 18px; 
-            color: #ff7043; 
-            font-weight: bold;
-            background: #fff0f5; /* ほんのり苺ミルク色 */
+        /* ⏰ 時刻バッジを真ん中に配置するためのラッパー */
+        .time-center-container {
             display: flex;
+            justify-content: center;
+            margin-top: 10px;
+            margin-bottom: -5px;
+            width: 100%;
+        }
+
+        /* 🎀 真ん中に出てくる時刻表示エリア（見やすく調整） */
+        #update-time {
+            font-size: 24px; /* 文字を大きく太く */
+            color: #060302; /* 濃いオレンジ色でハッキリ */
+            font-weight: 900;
+            background: #f5faf9; /* 少し濃いめのパステル苺ミルク色 */
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
-            padding: 4px 14px;
-            border-radius: 20px; /* ぷっくり丸い形 */
+            padding: 6px 30px; /* 文字が隠れないようにゆったり幅 */
+            border-radius: 20px; 
             box-shadow: 0 4px 6px rgba(255, 138, 101, 0.15); 
-            border: 2px dashed #ffab91; /* 点線デザイン */
-            
-            position: absolute;
-            right: 5px;
-            top: -6px;
+            border: 2.5px dashed #060302; /* 点線をくっきり太く */
+            min-width: 80px; /* 横幅をしっかり確保 */
+            text-align: center;
             z-index: 10;
         }
 
@@ -88,26 +86,26 @@
             text-align: center; 
             box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
             margin-bottom: 15px; 
-            border: 2px solid #fff3e0; 
+            border: 2px solid #e9e5dd; 
             transition: all 0.3s ease; 
         }
-        /* ふんわりパステルなレベル別カラー */
-        .total-card.level-1 { border-color: #a5d6a7; background: #e8f5e9; } 
-        .total-card.level-2 { border-color: #ffcc80; background: #fff3e0; } 
-        .total-card.level-3 { border-color: #ef9a9a; background: #ffebee; } 
+        /* ふんわりパステルなレベル別カラーを1つ目のトーンに調整 */
+        .total-card.level-1 { border-color: #68ca6b; background: #fff; } 
+        .total-card.level-2 { border-color: #eebe5f; background: #fff; } 
+        .total-card.level-3 { border-color: #e57373; background: #fff; } 
         
         .total-title { font-size: 16px; font-weight: bold; color: #777; margin-bottom: 5px; }
         .total-status { font-size: 26px; font-weight: 900; margin-bottom: 12px; }
         .total-info { display: flex; justify-content: space-around; font-size: 15px; font-weight: bold; }
-        .total-info div { background: rgba(255, 255, 255, 0.6); padding: 8px 15px; border-radius: 12px; min-width: 90px; }
-        .total-info div span { font-size: 26px; font-weight: 900; color: #ff8a65; }
+        .total-info div { background: #f6f2ee; padding: 8px 15px; border-radius: 12px; min-width: 90px; color: #555; }
+        .total-info div span { font-size: 26px; font-weight: 900; color: #0e0908; }
 
         .status-img { width: 70px; height: auto; margin-top: 5px; }
 
         /* トレンドグラフ表示用のカードスタイル */
-        .trend-card { background: #fff; border-radius: 18px; padding: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #fff3e0; }
+        .trend-card { background: #fff; border-radius: 18px; padding: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #e9e5dd; }
         .trend-subtitle { font-size: 13px; color: #ff8a65; font-weight: bold; text-align: right; margin-bottom: 8px; }
-        .trend-meta { font-size: 12px; color: #777; margin-top: 12px; display: flex; align-items: center; gap: 5px; background: #fffaf0; padding: 8px; border-radius: 10px; }
+        .trend-meta { font-size: 12px; color: #777; margin-top: 12px; display: flex; align-items: center; gap: 5px; background: #f6f2ee; padding: 8px; border-radius: 10px; }
     
         /* フッターナビをおそろいのかわいさに */
         .footer-nav {
@@ -139,7 +137,7 @@
             transition: color 0.3s;
         }
         .nav-item .icon { font-size: 24px; transition: transform 0.3s; }
-        .nav-item.active { color: #ff8a65; font-weight: bold; }
+        .nav-item.active { color: #2b1711; font-weight: bold; } /* シックな深い茶・黒系に統一 */
         .nav-item.active .icon { transform: translateY(-5px) scale(1.1); }
         .nav-item.active::after {
             content: '';
@@ -147,25 +145,29 @@
             bottom: -2px;
             width: 15px;
             height: 3px;
-            background-color: #ff8a65;
+            background-color: #ede4e1; /* 下線の色を統一 */
             border-radius: 2px;
         }
     </style>
 </head>
 <body>
-    <div class="header">🍽️ 高専品川 学生食堂ナビ<span class="experiment-badge">　実証実験中</span></div>
+    <div class="header">🍽️ 高専品川 学生食堂ナビ<span class="experiment-badge"> 実証実験中</span></div>
     <div class="container">
         
+        <!-- ⏰ ヘッダーとタイトルの間に中央寄せで配置（追加しました） -->
+        <div class="time-center-container">
+            <div id="update-time">--:--</div>
+        </div>
+        
         <div>
-            <!-- タイトルと右上時刻 -->
+            <!-- タイトルエリア -->
             <div class="title-container">
                 <div class="section-title">🎫 券売機の混雑状況</div>
-                <div id="update-time"></div>
             </div>
             
             <div id="total_card" class="total-card level-1">
                 <div class="total-title">現在の券売機エリア</div>
-                <div id="total_status" class="total-status" style="color: #4caf50;">🟢 空いています</div>
+                <div id="total_status" class="total-status" style="color: #68ca6b;">🟢 空いています</div>
                 
                 <div>
                     <img id="vending_image" class="status-img" src="lv1.png" alt="混雑度アイコン">
@@ -308,17 +310,17 @@
             if (vending.people >= 10) {
                 totalCard.classList.add('level-3'); 
                 totalStatus.innerHTML = "🚨 大変混雑しています"; 
-                totalStatus.style.color = "#e57373";
+                totalStatus.style.color = "#e57373"; /* 1つ目の警告赤に統一 */
                 vendingImg.src = "lv3.png";
             } else if (vending.people >= 5) {
                 totalCard.classList.add('level-2'); 
                 totalStatus.innerHTML = "⚠️ やや混雑しています"; 
-                totalStatus.style.color = "#ffb74d";
+                totalStatus.style.color = "#ffb74d"; /* 1つ目の警告オレンジに統一 */
                 vendingImg.src = "lv2.png";
             } else {
                 totalCard.classList.add('level-1'); 
                 totalStatus.innerHTML = "🟢 空いています"; 
-                totalStatus.style.color = "#81c784";
+                totalStatus.style.color = "#68ca6b"; /* 1つ目の麺類緑に統一 */
                 vendingImg.src = "lv1.png";
             }
 
@@ -340,10 +342,10 @@
             
             trendChart.update();
 
-            // 💡 3秒ごとのデータ更新に合わせて右上のバッジ時刻も自動更新
+            // 💡 3秒ごとのデータ更新に合わせて真ん中のバッジ時刻を自動書き換え
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
-            document.getElementById('update-time').innerHTML = `  ${hours}:${minutes}`;
+            document.getElementById('update-time').innerHTML = `${hours}:${minutes}`;
         })
         .catch(error => console.log("データ読み込みエラー:", error));
     }
