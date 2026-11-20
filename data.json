@@ -1,15 +1,15 @@
 {
     "vending_machine": {
-        "people": 1,
-        "time": 1
+        "people": 0,
+        "time": 0
     },
     "don": {
-        "people": 1,
-        "time": 1
+        "people": 0,
+        "time": 0
     },
     "noodle": {
-        "people": 1,
-        "time": 1
+        "people": 0,
+        "time": 0
     },
     "seats": {
         "t1": 1,
